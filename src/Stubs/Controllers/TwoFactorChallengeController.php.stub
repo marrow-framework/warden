@@ -1,0 +1,54 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\Auth\Controllers;
+
+use Marrow\Auth\AuthManager;
+use Marrow\Http\Controller;
+use Marrow\Http\RedirectResponse;
+use Marrow\Http\Request;
+use Marrow\Http\Response;
+use Marrow\Session\SessionManager;
+use Modules\Account\Models\User;
+
+/**
+ * The missing bridge between HasTwoFactor (crypto primitives only, shipped
+ * by marrow/framework) and an actual login flow: without this, a user with
+ * 2FA enabled is fully authenticated by SessionGuard::attempt() the moment
+ * their password is correct — the OTP is never actually checked anywhere.
+ * See LoginController::login(), which logs the user back out and parks
+ * their id in the 'warden_2fa_user_id' session key instead of completing
+ * login(), until verify() below succeeds.
+ */
+class TwoFactorChallengeController extends Controller
+{
+    public function show(SessionManager $session): Response
+    {
+        if ($session->get('warden_2fa_user_id') === null) {
+            return $this->redirectToRoute('login');
+        }
+
+        return $this->view('@auth/two-factor-challenge');
+    }
+
+    public function verify(Request $request, SessionManager $session, AuthManager $auth): RedirectResponse
+    {
+        $userId = $session->get('warden_2fa_user_id');
+        if ($userId === null) {
+            return $this->redirectToRoute('login');
+        }
+
+        $data = $this->validate($request, ['code' => 'required|string']);
+
+        $user = User::find((int) $userId);
+        if ($user === null || !$user->verifyTwoFactor($data['code'])) {
+            return $this->back()->withErrors(['code' => ['Code invalide.']]);
+        }
+
+        $session->forget('warden_2fa_user_id');
+        $auth->login($user);
+
+        return $this->redirectToRoute('home');
+    }
+}
