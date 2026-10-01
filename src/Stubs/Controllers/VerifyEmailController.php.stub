@@ -1,0 +1,70 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\Auth\Controllers;
+
+use Marrow\Auth\AuthManager;
+use Marrow\Database\Connection;
+use Marrow\Http\Controller;
+use Marrow\Http\RedirectResponse;
+use Marrow\Http\Response;
+use Marrow\Mail\Mailer;
+use Marrow\Warden\EmailVerifier;
+use Marrow\Warden\Mail\VerifyEmailMail;
+
+class VerifyEmailController extends Controller
+{
+    public function notice(AuthManager $auth): Response
+    {
+        $user = $auth->user();
+
+        if ($user !== null && !empty($user->email_verified_at)) {
+            return $this->redirectToRoute('home');
+        }
+
+        return $this->view('@auth/verify-email');
+    }
+
+    public function verify(string $id, string $token, AuthManager $auth, Connection $db, EmailVerifier $verifier): RedirectResponse
+    {
+        $row = $db->selectOne('SELECT * FROM users WHERE id = ?', [$id]);
+
+        if ($row === null || !$verifier->verify($token, $id, (string) $row['email'])) {
+            return $this->redirectToRoute('verification.notice')->withErrors([
+                'email' => ['Ce lien de vérification est invalide ou a expiré.'],
+            ]);
+        }
+
+        $db->update('users', ['email_verified_at' => date('Y-m-d H:i:s')], ['id' => $id]);
+
+        // The id in the link doesn't have to be the currently logged-in
+        // user (e.g. verifying from a different browser/device) — only log
+        // in if nobody else already is.
+        if (!$auth->check()) {
+            $auth->login((object) $row);
+        }
+
+        return $this->redirectToRoute('home')->with('status', 'Votre adresse email a été confirmée.');
+    }
+
+    public function resend(AuthManager $auth, Mailer $mailer, EmailVerifier $verifier): RedirectResponse
+    {
+        $user = $auth->user();
+
+        if ($user === null) {
+            return $this->redirectToRoute('login');
+        }
+
+        if (!empty($user->email_verified_at)) {
+            return $this->redirectToRoute('home');
+        }
+
+        $token = $verifier->makeToken($user->id, $user->email);
+        $verifyUrl = $this->router->route('verification.verify', ['id' => $user->id, 'token' => $token]);
+
+        $mailer->send(new VerifyEmailMail($user->email, $verifyUrl));
+
+        return $this->back()->with('status', 'Un nouveau lien de vérification vient de vous être envoyé.');
+    }
+}

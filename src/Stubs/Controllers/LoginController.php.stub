@@ -1,0 +1,81 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\Auth\Controllers;
+
+use Marrow\Auth\AuthManager;
+use Marrow\Exceptions\HttpException;
+use Marrow\Http\Controller;
+use Marrow\Http\RedirectResponse;
+use Marrow\Http\Request;
+use Marrow\Http\Response;
+use Marrow\Session\SessionManager;
+use Marrow\Warden\RememberMeBroker;
+
+class LoginController extends Controller
+{
+    public function show(): Response
+    {
+        return $this->view('@auth/login');
+    }
+
+    public function login(Request $request, AuthManager $auth, SessionManager $session, RememberMeBroker $remember): Response
+    {
+        $credentials = $this->validate($request, [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        try {
+            $ok = $auth->attempt($credentials);
+        } catch (HttpException $e) {
+            // Login-lockout 429 from SessionGuard::attempt() (see
+            // config/auth.php -> guards.session.throttle) — show it on the
+            // login form instead of the generic error page.
+            return $this->back()->withErrors(['email' => [$e->getMessage()]]);
+        }
+
+        if (!$ok) {
+            return $this->back()
+                ->withErrors(['email' => ['Ces identifiants ne correspondent à aucun compte.']])
+                ->withInput($request->except(['password']));
+        }
+
+        $user = $auth->user();
+
+        // Bridge to the 2FA challenge: SessionGuard::attempt() already
+        // established the session at this point (it calls login()
+        // internally on success), so a 2FA-enabled user isn't actually
+        // protected yet unless we undo that and require the OTP step first.
+        // See TwoFactorChallengeController, which reads 'warden_2fa_user_id'
+        // back out and completes (or rejects) the login.
+        if (method_exists($user, 'twoFactorEnabled') && $user->twoFactorEnabled()) {
+            $auth->logout();
+            $session->put('warden_2fa_user_id', $user->id);
+            return $this->redirectToRoute('two-factor.challenge');
+        }
+
+        $response = $this->redirectToRoute('home');
+
+        if ($request->input('remember') !== null) {
+            $response->headers->setCookie($remember->makeCookie($user));
+        }
+
+        return $response;
+    }
+
+    public function logout(AuthManager $auth, RememberMeBroker $remember): RedirectResponse
+    {
+        $user = $auth->user();
+        $response = $this->redirectToRoute('login');
+
+        if ($user !== null) {
+            $response->headers->setCookie($remember->forget($user));
+        }
+
+        $auth->logout();
+
+        return $response;
+    }
+}

@@ -1,0 +1,31 @@
+{% extends "layouts/app.html.twig" %}
+
+{% block title %}Vérifiez votre email{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen flex-col items-center justify-center px-6 py-16 text-center">
+    <div class="w-full max-w-md">
+        <h1 class="mb-4 text-2xl font-semibold text-slate-50">Vérifiez votre adresse email</h1>
+        <p class="mb-8 text-sm text-slate-400">
+            Un lien de confirmation vous a été envoyé par email lors de votre inscription.
+            Cliquez dessus pour activer votre compte.
+        </p>
+
+        {% if session_flash('status') %}
+            <p class="mb-6 rounded-lg bg-emerald-400/10 px-4 py-3 text-sm text-emerald-400">{{ session_flash('status') }}</p>
+        {% endif %}
+
+        {% if has_error('email') %}
+            <p class="mb-6 rounded-lg bg-red-400/10 px-4 py-3 text-sm text-red-400">{{ errors('email')[0] }}</p>
+        {% endif %}
+
+        <form method="POST" action="{{ route('verification.send') }}">
+            {{ csrf_field()|raw }}
+            <button type="submit"
+                class="rounded-lg bg-orange-500 px-4 py-2 font-semibold text-slate-950 transition hover:bg-orange-400">
+                Renvoyer l'email de confirmation
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

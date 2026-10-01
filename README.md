@@ -74,4 +74,3 @@ the app needs. The package itself never reaches into `modules/Auth/` again.
 - `marrow/framework` ^2.2
 - A mailer configured (`config/mail.php`) for password reset / verification emails to actually send.
 - `APP_KEY` set (`php forge key:generate`) — used to sign email-verification links.
-# warden

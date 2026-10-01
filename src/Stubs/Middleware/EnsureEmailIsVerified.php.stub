@@ -1,0 +1,44 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\Auth\Middleware;
+
+use Marrow\Auth\AuthManager;
+use Marrow\Exceptions\HttpException;
+use Marrow\Http\RedirectResponse;
+use Marrow\Http\Request;
+use Marrow\Routing\Router;
+use Symfony\Component\HttpFoundation\Response;
+
+/**
+ * Gates a route behind a verified email address. Apply after `auth`:
+ *
+ *   $router->get('/billing', ...)->middleware(['auth', 'verified']);
+ *
+ * Register the alias in config/middleware.php:
+ *   'verified' => \Modules\Auth\Middleware\EnsureEmailIsVerified::class,
+ */
+class EnsureEmailIsVerified
+{
+    public function __construct(
+        private readonly AuthManager $auth,
+        private readonly Router $router,
+    ) {
+    }
+
+    public function handle(Request $request, callable $next): Response
+    {
+        $user = $this->auth->user();
+
+        if ($user !== null && empty($user->email_verified_at)) {
+            if ($request->wantsJson()) {
+                throw new HttpException(409, 'Votre adresse email n\'est pas vérifiée.');
+            }
+
+            return new RedirectResponse($this->router->route('verification.notice'));
+        }
+
+        return $next($request);
+    }
+}

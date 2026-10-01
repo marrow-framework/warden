@@ -1,0 +1,48 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\Auth\Middleware;
+
+use Marrow\Auth\AuthManager;
+use Marrow\Http\Request;
+use Marrow\Warden\RememberMeBroker;
+use Symfony\Component\HttpFoundation\Response;
+
+/**
+ * Wakes a session back up from a "remember me" cookie once the PHP session
+ * itself has expired (browser close, idle timeout). Must run after
+ * `session` (StartSession) — AuthManager/SessionGuard need a started
+ * session — and before any route-level `auth` check.
+ *
+ * Register as an alias and add it to the 'web' group in
+ * config/middleware.php, right after 'session':
+ *
+ *   'aliases' => [
+ *       // ...
+ *       'remember' => \Modules\Auth\Middleware\AttemptRememberLogin::class,
+ *   ],
+ *   'groups' => [
+ *       'web' => ['session', 'remember', 'flash-errors', 'trim', 'sanitize', 'csrf'],
+ *   ],
+ */
+class AttemptRememberLogin
+{
+    public function __construct(
+        private readonly AuthManager $auth,
+        private readonly RememberMeBroker $remember,
+    ) {
+    }
+
+    public function handle(Request $request, callable $next): Response
+    {
+        if (!$this->auth->check()) {
+            $row = $this->remember->resolve($request);
+            if ($row !== null) {
+                $this->auth->login((object) $row);
+            }
+        }
+
+        return $next($request);
+    }
+}

@@ -1,0 +1,37 @@
+{
+    "name": "marrow/warden",
+    "description": "Account security scaffolding for Marrow — login, registration, password reset, email verification, remember-me, and a 2FA login challenge. Publishes editable controllers/views into your app (Breeze-style) on top of a small, versioned runtime (token brokers, mailables) built entirely on the framework's existing Auth primitives.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["marrow", "framework", "auth", "authentication", "security", "2fa", "password-reset", "email-verification"],
+    "homepage": "https://github.com/marrow-framework/warden",
+    "support": {
+        "issues": "https://github.com/marrow-framework/warden/issues",
+        "source": "https://github.com/marrow-framework/warden"
+    },
+    "authors": [
+        {
+            "name": "Aure Dulvresse",
+            "email": "marrow.framework@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "marrow/framework": "^2.2"
+    },
+    "require-dev": {
+        "pestphp/pest": "^3.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "Marrow\\Warden\\": "src/"
+        }
+    },
+    "extra": {
+        "marrow": {
+            "modules": ["Marrow\\Warden\\WardenModule"]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

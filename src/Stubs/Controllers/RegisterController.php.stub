@@ -1,0 +1,40 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\Auth\Controllers;
+
+use Marrow\Auth\AuthManager;
+use Marrow\Auth\Hash;
+use Marrow\Http\Controller;
+use Marrow\Http\RedirectResponse;
+use Marrow\Http\Request;
+use Marrow\Http\Response;
+use Modules\Account\Models\User;
+
+class RegisterController extends Controller
+{
+    public function show(): Response
+    {
+        return $this->view('@auth/register');
+    }
+
+    public function register(Request $request, AuthManager $auth): RedirectResponse
+    {
+        $data = $this->validate($request, [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+        ]);
+
+        $auth->login($user);
+
+        return $this->redirectToRoute('home');
+    }
+}
