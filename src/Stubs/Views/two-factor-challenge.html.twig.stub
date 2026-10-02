@@ -10,23 +10,24 @@
             Entrez le code à 6 chiffres de votre application d'authentification, ou un code de récupération.
         </p>
 
-        <form method="POST" action="{{ route('two-factor.verify') }}" class="space-y-5">
-            {{ csrf_field()|raw }}
+        {# Rendered manually rather than through `form`'s auto-field loop:
+           form-builder's Field class has no `attrs`/`class` carrying
+           mechanism (see FormComponent's docblock), and this one field
+           genuinely needs both (inputmode/autocomplete, centered tracking-
+           wide text) — `form.field('code').errors` still pulls validation
+           errors from the same TwoFactorChallengeForm the controller
+           validated, so nothing about the validation story changes. #}
+        {% set content %}
+            {{ component('field', {
+                name: 'code', label: 'Code', required: true, autofocus: true,
+                class: 'text-center text-lg tracking-widest',
+                attrs: {inputmode: 'numeric', autocomplete: 'one-time-code'},
+                errorMessages: form.field('code').errors,
+            }) }}
+            {{ component('button', {type: 'submit', class: 'w-full', slot: 'Vérifier'}) }}
+        {% endset %}
 
-            <div>
-                <label for="code" class="mb-1 block text-sm font-medium text-slate-300">Code</label>
-                <input type="text" name="code" id="code" inputmode="numeric" autocomplete="one-time-code" required autofocus
-                    class="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-center text-lg tracking-widest text-slate-100 focus:border-orange-400 focus:outline-none">
-                {% if has_error('code') %}
-                    <p class="mt-1 text-sm text-red-400">{{ errors('code')[0] }}</p>
-                {% endif %}
-            </div>
-
-            <button type="submit"
-                class="w-full rounded-lg bg-orange-500 px-4 py-2 font-semibold text-slate-950 transition hover:bg-orange-400">
-                Vérifier
-            </button>
-        </form>
+        {{ component('form', {action: route('two-factor.verify'), slot: content}) }}
     </div>
 </div>
 {% endblock %}

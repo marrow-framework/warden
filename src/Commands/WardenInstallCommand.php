@@ -42,6 +42,15 @@ class WardenInstallCommand extends Command
         'AttemptRememberLogin',
     ];
 
+    /** marrow/form-builder Form classes — one per published controller/view pair that has fields. */
+    private const FORMS = [
+        'LoginForm',
+        'RegisterForm',
+        'ForgotPasswordForm',
+        'ResetPasswordForm',
+        'TwoFactorChallengeForm',
+    ];
+
     private const VIEWS = [
         'login',
         'register',
@@ -63,6 +72,10 @@ class WardenInstallCommand extends Command
 
         foreach (self::MIDDLEWARE as $name) {
             $this->publishStub("{$stubsPath}/Middleware/{$name}.php.stub", "{$authPath}/Middleware/{$name}.php", $force);
+        }
+
+        foreach (self::FORMS as $name) {
+            $this->publishStub("{$stubsPath}/Forms/{$name}.php.stub", "{$authPath}/Forms/{$name}.php", $force);
         }
 
         foreach (self::VIEWS as $name) {

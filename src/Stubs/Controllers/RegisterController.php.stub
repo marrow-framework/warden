@@ -7,25 +7,27 @@ namespace Modules\Auth\Controllers;
 use Marrow\Auth\AuthManager;
 use Marrow\Auth\Hash;
 use Marrow\Http\Controller;
-use Marrow\Http\RedirectResponse;
 use Marrow\Http\Request;
-use Marrow\Http\Response;
 use Modules\Account\Models\User;
+use Modules\Auth\Forms\RegisterForm;
+use Symfony\Component\HttpFoundation\Response;
 
 class RegisterController extends Controller
 {
     public function show(): Response
     {
-        return $this->view('@auth/register');
+        return $this->showForm(new RegisterForm());
     }
 
-    public function register(Request $request, AuthManager $auth): RedirectResponse
+    /** See LoginController::login()'s docblock for why this is Symfony's Response, not Marrow\Http\Response. */
+    public function register(Request $request, AuthManager $auth): Response
     {
-        $data = $this->validate($request, [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        $form = RegisterForm::fromRequest($request);
+        if (!$form->isValid()) {
+            return $this->showForm($form);
+        }
+
+        $data = $form->cleanedData();
 
         $user = User::create([
             'name' => $data['name'],
@@ -36,5 +38,10 @@ class RegisterController extends Controller
         $auth->login($user);
 
         return $this->redirectToRoute('home');
+    }
+
+    private function showForm(RegisterForm $form): \Marrow\Http\Response
+    {
+        return $this->view('@auth/register', ['form' => $form]);
     }
 }

@@ -13,6 +13,23 @@ ordinary versioned dependency:
 - `RememberMeBroker` — persistent "remember me" login cookie.
 - `Mail\ResetPasswordMail` / `Mail\VerifyEmailMail` — the two transactional emails.
 
+The published views are themselves built entirely out of [`marrow/ui`](https://github.com/marrow-framework/ui)'s
+`field`/`button`/`checkbox`/`alert`/`form` components (a real `require`, not copied in) — restyle every login/
+register/reset form at once by overriding those components (`ComponentRegistry::registerAs(...)`), rather than
+editing each published Twig file individually. The generated views still work exactly the same if you'd
+rather hand-edit them directly — they're yours either way.
+
+Validation itself is [`marrow/form-builder`](https://github.com/marrow-framework/form-builder) (also a real
+`require`): each controller validates through a declarative `Form` class published alongside it
+(`Forms/LoginForm.php`, etc.), and the view renders it with a single
+`{{ component('form', {form: form, ...}) }}` call via `marrow/ui`'s form-builder bridge — no
+`{% for %}`-over-fields, no separate `old()`/`has_error()` wiring to keep in sync with the controller's
+validation rules. A failed `$form->isValid()` re-renders the same view directly with that `$form` (carrying
+its own submitted values and errors) rather than redirecting back with flashed session data — see
+`LoginController::login()`'s docblock for why every controller action that can return *either* a redirect or
+a rendered view is typed `Symfony\Component\HttpFoundation\Response`, not `Marrow\Http\Response`
+(`RedirectResponse` isn't a subtype of it).
+
 ## Why this exists
 
 `marrow/framework`'s `Marrow\Auth\*` is a solid, low-level authentication/authorization toolkit (Argon2id
@@ -59,6 +76,12 @@ modules/Auth/
 ├── Middleware/
 │   ├── EnsureEmailIsVerified.php
 │   └── AttemptRememberLogin.php
+├── Forms/
+│   ├── LoginForm.php
+│   ├── RegisterForm.php
+│   ├── ForgotPasswordForm.php
+│   ├── ResetPasswordForm.php
+│   └── TwoFactorChallengeForm.php
 ├── Views/
 │   └── *.html.twig
 └── Database/Migrations/
@@ -72,5 +95,10 @@ the app needs. The package itself never reaches into `modules/Auth/` again.
 ## Requirements
 
 - `marrow/framework` ^2.2
+- `marrow/ui` ^1.0 and `marrow/form-builder` ^1.0 (both real `require`d dependencies, pulled in automatically)
 - A mailer configured (`config/mail.php`) for password reset / verification emails to actually send.
 - `APP_KEY` set (`php forge key:generate`) — used to sign email-verification links.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

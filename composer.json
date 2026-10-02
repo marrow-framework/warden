@@ -1,6 +1,6 @@
 {
     "name": "marrow/warden",
-    "description": "Account security scaffolding for Marrow — login, registration, password reset, email verification, remember-me, and a 2FA login challenge. Publishes editable controllers/views into your app (Breeze-style) on top of a small, versioned runtime (token brokers, mailables) built entirely on the framework's existing Auth primitives.",
+    "description": "Account security scaffolding for Marrow — login, registration, password reset, email verification, remember-me, and a 2FA login challenge. Publishes editable controllers/views/form-builder Forms (built on marrow/ui's components) into your app (Breeze-style) on top of a small, versioned runtime (token brokers, mailables) built entirely on the framework's existing Auth primitives.",
     "type": "library",
     "license": "MIT",
     "keywords": ["marrow", "framework", "auth", "authentication", "security", "2fa", "password-reset", "email-verification"],
@@ -17,7 +17,9 @@
     ],
     "require": {
         "php": ">=8.2",
-        "marrow/framework": "^2.2"
+        "marrow/framework": "^2.2",
+        "marrow/ui": "^1.0",
+        "marrow/form-builder": "^1.0"
     },
     "require-dev": {
         "pestphp/pest": "^3.8"
