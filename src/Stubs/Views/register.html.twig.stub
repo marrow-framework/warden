@@ -7,47 +7,15 @@
     <div class="w-full max-w-sm">
         <h1 class="mb-8 text-center text-2xl font-semibold text-slate-50">Créer un compte</h1>
 
-        <form method="POST" action="{{ route('register.store') }}" class="space-y-5">
-            {{ csrf_field()|raw }}
+        {% set extra %}
+            {# Not a declared RegisterForm field — the `confirmed` rule checks
+               it against the raw submitted data directly, see RegisterForm's
+               own docblock. #}
+            {{ component('field', {name: 'password_confirmation', type: 'password', label: 'Confirmer le mot de passe', required: true, attrs: {autocomplete: 'new-password'}}) }}
+            {{ component('button', {type: 'submit', class: 'w-full', slot: 'Créer mon compte'}) }}
+        {% endset %}
 
-            <div>
-                <label for="name" class="mb-1 block text-sm font-medium text-slate-300">Nom</label>
-                <input type="text" name="name" id="name" value="{{ old('name') }}" required autofocus
-                    class="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-orange-400 focus:outline-none">
-                {% if has_error('name') %}
-                    <p class="mt-1 text-sm text-red-400">{{ errors('name')[0] }}</p>
-                {% endif %}
-            </div>
-
-            <div>
-                <label for="email" class="mb-1 block text-sm font-medium text-slate-300">Email</label>
-                <input type="email" name="email" id="email" value="{{ old('email') }}" required
-                    class="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-orange-400 focus:outline-none">
-                {% if has_error('email') %}
-                    <p class="mt-1 text-sm text-red-400">{{ errors('email')[0] }}</p>
-                {% endif %}
-            </div>
-
-            <div>
-                <label for="password" class="mb-1 block text-sm font-medium text-slate-300">Mot de passe</label>
-                <input type="password" name="password" id="password" required
-                    class="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-orange-400 focus:outline-none">
-                {% if has_error('password') %}
-                    <p class="mt-1 text-sm text-red-400">{{ errors('password')[0] }}</p>
-                {% endif %}
-            </div>
-
-            <div>
-                <label for="password_confirmation" class="mb-1 block text-sm font-medium text-slate-300">Confirmer le mot de passe</label>
-                <input type="password" name="password_confirmation" id="password_confirmation" required
-                    class="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-orange-400 focus:outline-none">
-            </div>
-
-            <button type="submit"
-                class="w-full rounded-lg bg-orange-500 px-4 py-2 font-semibold text-slate-950 transition hover:bg-orange-400">
-                Créer mon compte
-            </button>
-        </form>
+        {{ component('form', {form: form, action: route('register.store'), slot: extra}) }}
 
         <div class="mt-6 text-center text-sm text-slate-400">
             Déjà inscrit ? <a href="{{ route('login') }}" class="hover:text-orange-300">Se connecter</a>

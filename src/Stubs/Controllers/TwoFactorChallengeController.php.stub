@@ -6,11 +6,11 @@ namespace Modules\Auth\Controllers;
 
 use Marrow\Auth\AuthManager;
 use Marrow\Http\Controller;
-use Marrow\Http\RedirectResponse;
 use Marrow\Http\Request;
-use Marrow\Http\Response;
 use Marrow\Session\SessionManager;
 use Modules\Account\Models\User;
+use Modules\Auth\Forms\TwoFactorChallengeForm;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * The missing bridge between HasTwoFactor (crypto primitives only, shipped
@@ -23,32 +23,50 @@ use Modules\Account\Models\User;
  */
 class TwoFactorChallengeController extends Controller
 {
+    /**
+     * Declared Symfony's Response, not Marrow\Http\Response — this method
+     * returns either a redirect (no pending challenge) or a rendered form,
+     * and RedirectResponse is not a subtype of Marrow\Http\Response (see
+     * LoginController::login()'s docblock for the full reasoning).
+     */
     public function show(SessionManager $session): Response
     {
         if ($session->get('warden_2fa_user_id') === null) {
             return $this->redirectToRoute('login');
         }
 
-        return $this->view('@auth/two-factor-challenge');
+        return $this->showForm(new TwoFactorChallengeForm());
     }
 
-    public function verify(Request $request, SessionManager $session, AuthManager $auth): RedirectResponse
+    /** Same reasoning as show() above for the return type. */
+    public function verify(Request $request, SessionManager $session, AuthManager $auth): Response
     {
         $userId = $session->get('warden_2fa_user_id');
         if ($userId === null) {
             return $this->redirectToRoute('login');
         }
 
-        $data = $this->validate($request, ['code' => 'required|string']);
+        $form = TwoFactorChallengeForm::fromRequest($request);
+        if (!$form->isValid()) {
+            return $this->showForm($form);
+        }
+
+        $data = $form->cleanedData();
 
         $user = User::find((int) $userId);
         if ($user === null || !$user->verifyTwoFactor($data['code'])) {
-            return $this->back()->withErrors(['code' => ['Code invalide.']]);
+            $form->field('code')->errors = ['Code invalide.'];
+            return $this->showForm($form);
         }
 
         $session->forget('warden_2fa_user_id');
         $auth->login($user);
 
         return $this->redirectToRoute('home');
+    }
+
+    private function showForm(TwoFactorChallengeForm $form): \Marrow\Http\Response
+    {
+        return $this->view('@auth/two-factor-challenge', ['form' => $form]);
     }
 }

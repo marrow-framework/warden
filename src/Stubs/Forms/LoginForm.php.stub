@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\Auth\Forms;
+
+use Marrow\FormBuilder\Fields\EmailField;
+use Marrow\FormBuilder\Fields\PasswordField;
+use Marrow\FormBuilder\Form;
+
+class LoginForm extends Form
+{
+    #[EmailField(label: 'Email', rules: 'required|email')]
+    public string $email;
+
+    #[PasswordField(label: 'Mot de passe', rules: 'required')]
+    public string $password;
+}

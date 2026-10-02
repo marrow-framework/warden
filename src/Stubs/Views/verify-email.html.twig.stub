@@ -12,19 +12,18 @@
         </p>
 
         {% if session_flash('status') %}
-            <p class="mb-6 rounded-lg bg-emerald-400/10 px-4 py-3 text-sm text-emerald-400">{{ session_flash('status') }}</p>
+            {% component 'alert' with {type: 'success'} %}{{ session_flash('status') }}{% endcomponent %}
+            <div class="mb-6"></div>
         {% endif %}
 
         {% if has_error('email') %}
-            <p class="mb-6 rounded-lg bg-red-400/10 px-4 py-3 text-sm text-red-400">{{ errors('email')[0] }}</p>
+            {% component 'alert' with {type: 'danger'} %}{{ errors('email')[0] }}{% endcomponent %}
+            <div class="mb-6"></div>
         {% endif %}
 
         <form method="POST" action="{{ route('verification.send') }}">
             {{ csrf_field()|raw }}
-            <button type="submit"
-                class="rounded-lg bg-orange-500 px-4 py-2 font-semibold text-slate-950 transition hover:bg-orange-400">
-                Renvoyer l'email de confirmation
-            </button>
+            {{ component('button', {type: 'submit', slot: "Renvoyer l'email de confirmation"}) }}
         </form>
     </div>
 </div>

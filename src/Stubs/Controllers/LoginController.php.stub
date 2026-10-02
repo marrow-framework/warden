@@ -9,23 +9,35 @@ use Marrow\Exceptions\HttpException;
 use Marrow\Http\Controller;
 use Marrow\Http\RedirectResponse;
 use Marrow\Http\Request;
-use Marrow\Http\Response;
 use Marrow\Session\SessionManager;
 use Marrow\Warden\RememberMeBroker;
+use Modules\Auth\Forms\LoginForm;
+use Symfony\Component\HttpFoundation\Response;
 
 class LoginController extends Controller
 {
     public function show(): Response
     {
-        return $this->view('@auth/login');
+        return $this->showForm(new LoginForm());
     }
 
+    /**
+     * Declared `Symfony\...\Response`, not `Marrow\Http\Response` — this
+     * method returns either a redirect (`RedirectResponse`, on success) or a
+     * re-rendered form (`Marrow\Http\Response`, on failure), and
+     * `RedirectResponse` is not a subtype of `Marrow\Http\Response` (both
+     * extend Symfony's base `Response` independently — see
+     * `Marrow\Middleware\Authenticate` for the same reasoning). Every
+     * method below that can return either kind follows the same rule.
+     */
     public function login(Request $request, AuthManager $auth, SessionManager $session, RememberMeBroker $remember): Response
     {
-        $credentials = $this->validate($request, [
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        $form = LoginForm::fromRequest($request);
+        if (!$form->isValid()) {
+            return $this->showForm($form);
+        }
+
+        $credentials = $form->cleanedData();
 
         try {
             $ok = $auth->attempt($credentials);
@@ -33,13 +45,13 @@ class LoginController extends Controller
             // Login-lockout 429 from SessionGuard::attempt() (see
             // config/auth.php -> guards.session.throttle) — show it on the
             // login form instead of the generic error page.
-            return $this->back()->withErrors(['email' => [$e->getMessage()]]);
+            $form->field('email')->errors = [$e->getMessage()];
+            return $this->showForm($form);
         }
 
         if (!$ok) {
-            return $this->back()
-                ->withErrors(['email' => ['Ces identifiants ne correspondent à aucun compte.']])
-                ->withInput($request->except(['password']));
+            $form->field('email')->errors = ['Ces identifiants ne correspondent à aucun compte.'];
+            return $this->showForm($form);
         }
 
         $user = $auth->user();
@@ -77,5 +89,10 @@ class LoginController extends Controller
         $auth->logout();
 
         return $response;
+    }
+
+    private function showForm(LoginForm $form): \Marrow\Http\Response
+    {
+        return $this->view('@auth/login', ['form' => $form]);
     }
 }

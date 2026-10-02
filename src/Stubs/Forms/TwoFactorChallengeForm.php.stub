@@ -1,0 +1,14 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\Auth\Forms;
+
+use Marrow\FormBuilder\Fields\CharField;
+use Marrow\FormBuilder\Form;
+
+class TwoFactorChallengeForm extends Form
+{
+    #[CharField(label: 'Code', rules: 'required|string')]
+    public string $code;
+}

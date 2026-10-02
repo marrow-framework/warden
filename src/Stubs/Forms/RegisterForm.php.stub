@@ -1,0 +1,30 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\Auth\Forms;
+
+use Marrow\FormBuilder\Fields\CharField;
+use Marrow\FormBuilder\Fields\EmailField;
+use Marrow\FormBuilder\Fields\PasswordField;
+use Marrow\FormBuilder\Form;
+
+/**
+ * No declared field for `password_confirmation` — the `confirmed` rule
+ * checks it against the raw submitted data directly (Form::isValid() hands
+ * the *whole* request array to the validator, not just declared fields), so
+ * there's nothing to declare. The view still renders a plain
+ * `password_confirmation` field manually, outside the auto-rendered loop —
+ * see register.html.twig.stub.
+ */
+class RegisterForm extends Form
+{
+    #[CharField(label: 'Nom', rules: 'required|string|max:255')]
+    public string $name;
+
+    #[EmailField(label: 'Email', rules: 'required|email|unique:users,email')]
+    public string $email;
+
+    #[PasswordField(label: 'Mot de passe', rules: 'required|string|min:8|confirmed')]
+    public string $password;
+}

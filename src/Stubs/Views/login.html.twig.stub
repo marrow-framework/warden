@@ -8,40 +8,18 @@
         <h1 class="mb-8 text-center text-2xl font-semibold text-slate-50">Connexion</h1>
 
         {% if session_flash('status') %}
-            <p class="mb-6 rounded-lg bg-emerald-400/10 px-4 py-3 text-sm text-emerald-400">{{ session_flash('status') }}</p>
+            {% component 'alert' with {type: 'success'} %}{{ session_flash('status') }}{% endcomponent %}
+            <div class="mb-6"></div>
         {% endif %}
 
-        <form method="POST" action="{{ route('login.attempt') }}" class="space-y-5">
-            {{ csrf_field()|raw }}
-
-            <div>
-                <label for="email" class="mb-1 block text-sm font-medium text-slate-300">Email</label>
-                <input type="email" name="email" id="email" value="{{ old('email') }}" required autofocus
-                    class="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-orange-400 focus:outline-none">
-                {% if has_error('email') %}
-                    <p class="mt-1 text-sm text-red-400">{{ errors('email')[0] }}</p>
-                {% endif %}
+        {% set extra %}
+            <div class="mb-5">
+                {{ component('checkbox', {name: 'remember', value: '1', label: 'Se souvenir de moi'}) }}
             </div>
+            {{ component('button', {type: 'submit', class: 'w-full', slot: 'Se connecter'}) }}
+        {% endset %}
 
-            <div>
-                <label for="password" class="mb-1 block text-sm font-medium text-slate-300">Mot de passe</label>
-                <input type="password" name="password" id="password" required
-                    class="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-slate-100 focus:border-orange-400 focus:outline-none">
-                {% if has_error('password') %}
-                    <p class="mt-1 text-sm text-red-400">{{ errors('password')[0] }}</p>
-                {% endif %}
-            </div>
-
-            <label class="flex items-center gap-2 text-sm text-slate-400">
-                <input type="checkbox" name="remember" value="1" class="rounded border-slate-700 bg-slate-900">
-                Se souvenir de moi
-            </label>
-
-            <button type="submit"
-                class="w-full rounded-lg bg-orange-500 px-4 py-2 font-semibold text-slate-950 transition hover:bg-orange-400">
-                Se connecter
-            </button>
-        </form>
+        {{ component('form', {form: form, action: route('login.attempt'), slot: extra}) }}
 
         <div class="mt-6 flex items-center justify-between text-sm text-slate-400">
             <a href="{{ route('password.request') }}" class="hover:text-orange-300">Mot de passe oublié ?</a>
