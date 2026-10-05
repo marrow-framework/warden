@@ -1,25 +1,22 @@
-{% extends "layouts/app.html.twig" %}
+{% extends "layouts/auth.html.twig" %}
 
 {% block title %}Créer un compte{% endblock %}
+{% block card_title %}Créer un compte{% endblock %}
+{% block card_description %}Quelques informations pour commencer.{% endblock %}
 
-{% block body %}
-<div class="flex min-h-screen flex-col items-center justify-center px-6 py-16">
-    <div class="w-full max-w-sm">
-        <h1 class="mb-8 text-center text-2xl font-semibold text-slate-50">Créer un compte</h1>
+{% block card_content %}
+    <mui-form :form="form" action="{{ route('register.store') }}">
+        {# Not a declared RegisterForm field — the `confirmed` rule checks
+           it against the raw submitted data directly, see RegisterForm's
+           own docblock. #}
+        <mui-field
+            name="password_confirmation" type="password" label="Confirmer le mot de passe"
+            required :attrs="{autocomplete: 'new-password'}"
+        />
+        <mui-button type="submit" class="w-full">Créer mon compte</mui-button>
+    </mui-form>
+{% endblock %}
 
-        {% set extra %}
-            {# Not a declared RegisterForm field — the `confirmed` rule checks
-               it against the raw submitted data directly, see RegisterForm's
-               own docblock. #}
-            {{ component('field', {name: 'password_confirmation', type: 'password', label: 'Confirmer le mot de passe', required: true, attrs: {autocomplete: 'new-password'}}) }}
-            {{ component('button', {type: 'submit', class: 'w-full', slot: 'Créer mon compte'}) }}
-        {% endset %}
-
-        {{ component('form', {form: form, action: route('register.store'), slot: extra}) }}
-
-        <div class="mt-6 text-center text-sm text-slate-400">
-            Déjà inscrit ? <a href="{{ route('login') }}" class="hover:text-orange-300">Se connecter</a>
-        </div>
-    </div>
-</div>
+{% block card_footer %}
+    <p class="text-center">Déjà inscrit ? <a href="{{ route('login') }}" class="hover:text-orange-300">Se connecter</a></p>
 {% endblock %}

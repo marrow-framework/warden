@@ -1,30 +1,23 @@
-{% extends "layouts/app.html.twig" %}
+{% extends "layouts/auth.html.twig" %}
 
 {% block title %}Vérifiez votre email{% endblock %}
+{% block wrapper_class %}max-w-md{% endblock %}
+{% block card_title %}Vérifiez votre adresse email{% endblock %}
+{% block card_description %}
+    Un lien de confirmation vous a été envoyé par email lors de votre inscription.
+    Cliquez dessus pour activer votre compte.
+{% endblock %}
 
-{% block body %}
-<div class="flex min-h-screen flex-col items-center justify-center px-6 py-16 text-center">
-    <div class="w-full max-w-md">
-        <h1 class="mb-4 text-2xl font-semibold text-slate-50">Vérifiez votre adresse email</h1>
-        <p class="mb-8 text-sm text-slate-400">
-            Un lien de confirmation vous a été envoyé par email lors de votre inscription.
-            Cliquez dessus pour activer votre compte.
-        </p>
+{% block card_content %}
+    {% if session_flash('status') %}
+        <mui-alert type="success" class="mb-6">{{ session_flash('status') }}</mui-alert>
+    {% endif %}
 
-        {% if session_flash('status') %}
-            {% component 'alert' with {type: 'success'} %}{{ session_flash('status') }}{% endcomponent %}
-            <div class="mb-6"></div>
-        {% endif %}
+    {% if has_error('email') %}
+        <mui-alert type="danger" class="mb-6">{{ errors('email')[0] }}</mui-alert>
+    {% endif %}
 
-        {% if has_error('email') %}
-            {% component 'alert' with {type: 'danger'} %}{{ errors('email')[0] }}{% endcomponent %}
-            <div class="mb-6"></div>
-        {% endif %}
-
-        <form method="POST" action="{{ route('verification.send') }}">
-            {{ csrf_field()|raw }}
-            {{ component('button', {type: 'submit', slot: "Renvoyer l'email de confirmation"}) }}
-        </form>
-    </div>
-</div>
+    <mui-form action="{{ route('verification.send') }}" class="text-center">
+        <mui-button type="submit">Renvoyer l'email de confirmation</mui-button>
+    </mui-form>
 {% endblock %}

@@ -1,15 +1,11 @@
-{% extends "layouts/app.html.twig" %}
+{% extends "layouts/auth.html.twig" %}
 
 {% block title %}Vérification en deux étapes{% endblock %}
+{% block card_title %}Vérification en deux étapes{% endblock %}
+{% block card_description %}Entrez le code à 6 chiffres de votre application d'authentification, ou un code de récupération.{% endblock %}
 
-{% block body %}
-<div class="flex min-h-screen flex-col items-center justify-center px-6 py-16">
-    <div class="w-full max-w-sm">
-        <h1 class="mb-4 text-center text-2xl font-semibold text-slate-50">Vérification en deux étapes</h1>
-        <p class="mb-8 text-center text-sm text-slate-400">
-            Entrez le code à 6 chiffres de votre application d'authentification, ou un code de récupération.
-        </p>
-
+{% block card_content %}
+    <mui-form action="{{ route('two-factor.verify') }}">
         {# Rendered manually rather than through `form`'s auto-field loop:
            form-builder's Field class has no `attrs`/`class` carrying
            mechanism (see FormComponent's docblock), and this one field
@@ -17,17 +13,12 @@
            wide text) — `form.field('code').errors` still pulls validation
            errors from the same TwoFactorChallengeForm the controller
            validated, so nothing about the validation story changes. #}
-        {% set content %}
-            {{ component('field', {
-                name: 'code', label: 'Code', required: true, autofocus: true,
-                class: 'text-center text-lg tracking-widest',
-                attrs: {inputmode: 'numeric', autocomplete: 'one-time-code'},
-                errorMessages: form.field('code').errors,
-            }) }}
-            {{ component('button', {type: 'submit', class: 'w-full', slot: 'Vérifier'}) }}
-        {% endset %}
-
-        {{ component('form', {action: route('two-factor.verify'), slot: content}) }}
-    </div>
-</div>
+        <mui-field
+            name="code" label="Code" required autofocus
+            class="text-center text-lg tracking-widest"
+            :attrs="{inputmode: 'numeric', autocomplete: 'one-time-code'}"
+            :error-messages="form.field('code').errors"
+        />
+        <mui-button type="submit" class="w-full">Vérifier</mui-button>
+    </mui-form>
 {% endblock %}
