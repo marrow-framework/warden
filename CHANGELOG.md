@@ -18,8 +18,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   one-file edit instead of six. `warden:install` now publishes this layout alongside the existing views.
 - **Published views rewritten to use `marrow/ui`'s HTML-like `<mui-x>` tags** (`<mui-card>`, `<mui-form
   :form="form">`, `<mui-field>`, `<mui-button>`, ...) instead of `{{ component(...) }}` calls — purely a
-  notation change, no behavioral difference; requires `marrow/ui` ^1.1 (the version that gave every component a
-  `class`/`attrs` passthrough, used here for the card family's styling).
+  notation change, no behavioral difference. Still only requires `marrow/ui` ^1.0 — the Card family's `class`
+  prop used throughout the new layout already existed at that version.
 
 Only affects `warden:install` run from this version onward — an app that already scaffolded `modules/Auth/`
 from an earlier release is untouched; the package never reaches into that directory again.
