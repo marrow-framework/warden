@@ -1,4 +1,4 @@
-{% extends "layouts/auth.html.twig" %}
+{% extends "@auth/layouts/auth.html.twig" %}
 
 {% block title %}Connexion{% endblock %}
 {% block card_title %}Connexion{% endblock %}

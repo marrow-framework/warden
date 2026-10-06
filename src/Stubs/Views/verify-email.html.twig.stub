@@ -1,4 +1,4 @@
-{% extends "layouts/auth.html.twig" %}
+{% extends "@auth/layouts/auth.html.twig" %}
 
 {% block title %}Vérifiez votre email{% endblock %}
 {% block wrapper_class %}max-w-md{% endblock %}

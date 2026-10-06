@@ -1,4 +1,4 @@
-{% extends "layouts/auth.html.twig" %}
+{% extends "@auth/layouts/auth.html.twig" %}
 
 {% block title %}Créer un compte{% endblock %}
 {% block card_title %}Créer un compte{% endblock %}

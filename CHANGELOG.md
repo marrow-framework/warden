@@ -7,6 +7,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-10-06
+
+### Fixed
+
+- **Every published view (`login`, `register`, `forgot-password`, `reset-password`, `two-factor-challenge`,
+  `verify-email`) failed with `Twig\Error\LoaderError: Unable to find template "layouts/auth.html.twig"`** —
+  introduced in 1.2.0's shared-layout change. `AuthModule::boot()` registers the module's own `Views/` directory
+  under the `@auth` Twig namespace (`registerViewNamespace('auth', ...)`), so `Views/layouts/auth.html.twig`
+  only resolves as `@auth/layouts/auth.html.twig` — a bare `"layouts/auth.html.twig"` resolves against the
+  *default* namespace instead, which maps to the app's own `resources/views` (where `layouts/app.html.twig`,
+  the skeleton's base layout, actually lives). Every `{% extends "layouts/auth.html.twig" %}` is now
+  `{% extends "@auth/layouts/auth.html.twig" %}`. An app that ran `warden:install` on 1.2.0 needs the same
+  one-line fix applied by hand to its already-published `modules/Auth/Views/*.html.twig` (the package never
+  re-touches a published file) — the extends line is the first line of each.
+
 ## [1.2.0] - 2026-10-05
 
 ### Changed

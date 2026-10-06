@@ -1,4 +1,4 @@
-{% extends "layouts/auth.html.twig" %}
+{% extends "@auth/layouts/auth.html.twig" %}
 
 {% block title %}Vérification en deux étapes{% endblock %}
 {% block card_title %}Vérification en deux étapes{% endblock %}
