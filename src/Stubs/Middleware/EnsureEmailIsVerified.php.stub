@@ -8,8 +8,8 @@ use Marrow\Auth\AuthManager;
 use Marrow\Exceptions\HttpException;
 use Marrow\Http\RedirectResponse;
 use Marrow\Http\Request;
+use Marrow\Http\Response;
 use Marrow\Routing\Router;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Gates a route behind a verified email address. Apply after `auth`:

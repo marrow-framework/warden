@@ -8,19 +8,13 @@ use Marrow\Auth\AuthManager;
 use Marrow\Database\Connection;
 use Marrow\Http\Controller;
 use Marrow\Http\RedirectResponse;
+use Marrow\Http\Response;
 use Marrow\Mail\Mailer;
 use Marrow\Warden\EmailVerifier;
 use Marrow\Warden\Mail\VerifyEmailMail;
-use Symfony\Component\HttpFoundation\Response;
 
 class VerifyEmailController extends Controller
 {
-    /**
-     * Declared Symfony's Response, not Marrow\Http\Response — this method
-     * returns either a redirect (already verified) or a rendered view, and
-     * RedirectResponse is not a subtype of Marrow\Http\Response (see
-     * LoginController::login()'s docblock for the full reasoning).
-     */
     public function notice(AuthManager $auth): Response
     {
         $user = $auth->user();

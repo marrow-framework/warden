@@ -17,7 +17,7 @@
     ],
     "require": {
         "php": ">=8.2",
-        "marrow/framework": "^2.2",
+        "marrow/framework": "^3.0",
         "marrow/ui": "^1.0",
         "marrow/form-builder": "^1.0"
     },

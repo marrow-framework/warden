@@ -6,8 +6,8 @@ namespace Modules\Auth\Middleware;
 
 use Marrow\Auth\AuthManager;
 use Marrow\Http\Request;
+use Marrow\Http\Response;
 use Marrow\Warden\RememberMeBroker;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Wakes a session back up from a "remember me" cookie once the PHP session
