@@ -1,0 +1,47 @@
+{% extends "layouts/app.html.twig" %}
+
+{#
+    Shared chrome for every Warden page: brand mark, a soft glow behind a
+    real elevated card (built out of marrow/ui's Card family, via its
+    HTML-like <mui-x> tags — see marrow/ui's README) instead of bare text
+    floating on the page background. Each view only fills in
+    card_title/card_description/card_content/card_footer — restyle every
+    login/register/reset page at once by editing this one file, rather than
+    repeating the same wrapper markup six times.
+
+    card_description/card_footer render nothing at all when the extending
+    view leaves them empty (checked via block()|trim), so a page with no
+    footer links (reset-password, two-factor-challenge) doesn't get a stray
+    empty footer strip.
+#}
+{% block body %}
+<div class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-16">
+    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(251,146,60,0.12),transparent)]"></div>
+
+    <div class="relative w-full {% block wrapper_class %}max-w-sm{% endblock %}">
+        <div class="mb-8 flex justify-center">
+            <a href="/" class="text-lg font-semibold tracking-tight text-slate-50">{{ config('app.name') }}</a>
+        </div>
+
+        {% set cardDescription %}{% block card_description %}{% endblock %}{% endset %}
+        {% set cardFooter %}{% block card_footer %}{% endblock %}{% endset %}
+
+        <mui-card composed class="shadow-xl shadow-black/20">
+            <mui-card-header class="text-center">
+                <mui-card-title class="text-xl">{% block card_title %}{% endblock %}</mui-card-title>
+                {% if cardDescription|trim is not empty %}
+                    <mui-card-description class="mt-1.5">{{ cardDescription|raw }}</mui-card-description>
+                {% endif %}
+            </mui-card-header>
+
+            <mui-card-content>
+                {% block card_content %}{% endblock %}
+            </mui-card-content>
+
+            {% if cardFooter|trim is not empty %}
+                <mui-card-footer class="text-sm text-slate-400">{{ cardFooter|raw }}</mui-card-footer>
+            {% endif %}
+        </mui-card>
+    </div>
+</div>
+{% endblock %}

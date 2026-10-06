@@ -82,6 +82,10 @@ class WardenInstallCommand extends Command
             $this->publishStub("{$stubsPath}/Views/{$name}.html.twig.stub", "{$authPath}/Views/{$name}.html.twig", $force);
         }
 
+        // Shared chrome (brand mark + Card wrapper) every view above extends —
+        // see its own docblock.
+        $this->publishStub("{$stubsPath}/Views/layouts/auth.html.twig.stub", "{$authPath}/Views/layouts/auth.html.twig", $force);
+
         $this->publishStub("{$stubsPath}/AuthModule.php.stub", "{$authPath}/AuthModule.php", $force);
         $this->publishStub("{$stubsPath}/routes.php.stub", "{$authPath}/routes.php", $force);
 

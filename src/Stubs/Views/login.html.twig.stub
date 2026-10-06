@@ -1,30 +1,25 @@
-{% extends "layouts/app.html.twig" %}
+{% extends "layouts/auth.html.twig" %}
 
 {% block title %}Connexion{% endblock %}
+{% block card_title %}Connexion{% endblock %}
+{% block card_description %}Accédez à votre espace.{% endblock %}
 
-{% block body %}
-<div class="flex min-h-screen flex-col items-center justify-center px-6 py-16">
-    <div class="w-full max-w-sm">
-        <h1 class="mb-8 text-center text-2xl font-semibold text-slate-50">Connexion</h1>
+{% block card_content %}
+    {% if session_flash('status') %}
+        <mui-alert type="success" class="mb-6">{{ session_flash('status') }}</mui-alert>
+    {% endif %}
 
-        {% if session_flash('status') %}
-            {% component 'alert' with {type: 'success'} %}{{ session_flash('status') }}{% endcomponent %}
-            <div class="mb-6"></div>
-        {% endif %}
-
-        {% set extra %}
-            <div class="mb-5">
-                {{ component('checkbox', {name: 'remember', value: '1', label: 'Se souvenir de moi'}) }}
-            </div>
-            {{ component('button', {type: 'submit', class: 'w-full', slot: 'Se connecter'}) }}
-        {% endset %}
-
-        {{ component('form', {form: form, action: route('login.attempt'), slot: extra}) }}
-
-        <div class="mt-6 flex items-center justify-between text-sm text-slate-400">
-            <a href="{{ route('password.request') }}" class="hover:text-orange-300">Mot de passe oublié ?</a>
-            <a href="{{ route('register') }}" class="hover:text-orange-300">Créer un compte</a>
+    <mui-form :form="form" action="{{ route('login.attempt') }}">
+        <div class="mb-5">
+            <mui-checkbox name="remember" value="1" label="Se souvenir de moi" />
         </div>
+        <mui-button type="submit" class="w-full">Se connecter</mui-button>
+    </mui-form>
+{% endblock %}
+
+{% block card_footer %}
+    <div class="flex items-center justify-between">
+        <a href="{{ route('password.request') }}" class="hover:text-orange-300">Mot de passe oublié ?</a>
+        <a href="{{ route('register') }}" class="hover:text-orange-300">Créer un compte</a>
     </div>
-</div>
 {% endblock %}
