@@ -7,10 +7,10 @@ namespace Modules\Auth\Controllers;
 use Marrow\Auth\AuthManager;
 use Marrow\Http\Controller;
 use Marrow\Http\Request;
+use Marrow\Http\Response;
 use Marrow\Session\SessionManager;
 use Modules\Account\Models\User;
 use Modules\Auth\Forms\TwoFactorChallengeForm;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * The missing bridge between HasTwoFactor (crypto primitives only, shipped
@@ -23,12 +23,6 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class TwoFactorChallengeController extends Controller
 {
-    /**
-     * Declared Symfony's Response, not Marrow\Http\Response — this method
-     * returns either a redirect (no pending challenge) or a rendered form,
-     * and RedirectResponse is not a subtype of Marrow\Http\Response (see
-     * LoginController::login()'s docblock for the full reasoning).
-     */
     public function show(SessionManager $session): Response
     {
         if ($session->get('warden_2fa_user_id') === null) {
@@ -38,7 +32,6 @@ class TwoFactorChallengeController extends Controller
         return $this->showForm(new TwoFactorChallengeForm());
     }
 
-    /** Same reasoning as show() above for the return type. */
     public function verify(Request $request, SessionManager $session, AuthManager $auth): Response
     {
         $userId = $session->get('warden_2fa_user_id');
@@ -65,7 +58,7 @@ class TwoFactorChallengeController extends Controller
         return $this->redirectToRoute('home');
     }
 
-    private function showForm(TwoFactorChallengeForm $form): \Marrow\Http\Response
+    private function showForm(TwoFactorChallengeForm $form): Response
     {
         return $this->view('@auth/two-factor-challenge', ['form' => $form]);
     }

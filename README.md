@@ -29,9 +29,9 @@ Validation itself is [`marrow/form-builder`](https://github.com/marrow-framework
 `marrow/ui`'s form-builder bridge — no `{% for %}`-over-fields, no separate `old()`/`has_error()` wiring to keep
 in sync with the controller's validation rules. A failed `$form->isValid()` re-renders the same view directly
 with that `$form` (carrying its own submitted values and errors) rather than redirecting back with flashed
-session data — see `LoginController::login()`'s docblock for why every controller action that can return
-*either* a redirect or a rendered view is typed `Symfony\Component\HttpFoundation\Response`, not
-`Marrow\Http\Response` (`RedirectResponse` isn't a subtype of it).
+session data — every controller action that can return *either* a redirect or a rendered view just declares
+`: Marrow\Http\Response`, since `RedirectResponse` is a genuine subtype of it (`marrow/framework` ^3.0; see its
+own `docs/http.md`).
 
 ## Why this exists
 
@@ -99,7 +99,7 @@ the app needs. The package itself never reaches into `modules/Auth/` again.
 
 ## Requirements
 
-- `marrow/framework` ^2.2
+- `marrow/framework` ^3.0
 - `marrow/ui` ^1.0 and `marrow/form-builder` ^1.0 (both real `require`d dependencies, pulled in automatically)
 - A mailer configured (`config/mail.php`) for password reset / verification emails to actually send.
 - `APP_KEY` set (`php forge key:generate`) — used to sign email-verification links.

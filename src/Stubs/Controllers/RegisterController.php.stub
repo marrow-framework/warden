@@ -8,9 +8,9 @@ use Marrow\Auth\AuthManager;
 use Marrow\Auth\Hash;
 use Marrow\Http\Controller;
 use Marrow\Http\Request;
+use Marrow\Http\Response;
 use Modules\Account\Models\User;
 use Modules\Auth\Forms\RegisterForm;
-use Symfony\Component\HttpFoundation\Response;
 
 class RegisterController extends Controller
 {
@@ -19,7 +19,6 @@ class RegisterController extends Controller
         return $this->showForm(new RegisterForm());
     }
 
-    /** See LoginController::login()'s docblock for why this is Symfony's Response, not Marrow\Http\Response. */
     public function register(Request $request, AuthManager $auth): Response
     {
         $form = RegisterForm::fromRequest($request);
@@ -40,7 +39,7 @@ class RegisterController extends Controller
         return $this->redirectToRoute('home');
     }
 
-    private function showForm(RegisterForm $form): \Marrow\Http\Response
+    private function showForm(RegisterForm $form): Response
     {
         return $this->view('@auth/register', ['form' => $form]);
     }

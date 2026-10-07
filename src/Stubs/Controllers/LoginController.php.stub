@@ -9,10 +9,10 @@ use Marrow\Exceptions\HttpException;
 use Marrow\Http\Controller;
 use Marrow\Http\RedirectResponse;
 use Marrow\Http\Request;
+use Marrow\Http\Response;
 use Marrow\Session\SessionManager;
 use Marrow\Warden\RememberMeBroker;
 use Modules\Auth\Forms\LoginForm;
-use Symfony\Component\HttpFoundation\Response;
 
 class LoginController extends Controller
 {
@@ -21,15 +21,7 @@ class LoginController extends Controller
         return $this->showForm(new LoginForm());
     }
 
-    /**
-     * Declared `Symfony\...\Response`, not `Marrow\Http\Response` — this
-     * method returns either a redirect (`RedirectResponse`, on success) or a
-     * re-rendered form (`Marrow\Http\Response`, on failure), and
-     * `RedirectResponse` is not a subtype of `Marrow\Http\Response` (both
-     * extend Symfony's base `Response` independently — see
-     * `Marrow\Middleware\Authenticate` for the same reasoning). Every
-     * method below that can return either kind follows the same rule.
-     */
+    /** Returns either a redirect (success) or a re-rendered form (failure) — both are `Marrow\Http\Response`. */
     public function login(Request $request, AuthManager $auth, SessionManager $session, RememberMeBroker $remember): Response
     {
         $form = LoginForm::fromRequest($request);
@@ -91,7 +83,7 @@ class LoginController extends Controller
         return $response;
     }
 
-    private function showForm(LoginForm $form): \Marrow\Http\Response
+    private function showForm(LoginForm $form): Response
     {
         return $this->view('@auth/login', ['form' => $form]);
     }

@@ -7,6 +7,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-06
+
+### Changed
+
+- **Requires `marrow/framework` ^3.0** (was ^2.2) — that release makes `RedirectResponse`/`JsonResponse`
+  genuine subclasses of `Response` instead of independent siblings of it (see core's own CHANGELOG), which is
+  what every published controller here was working around. Every controller method that could return either a
+  redirect or a rendered view now simply declares `: Marrow\Http\Response` — the
+  `Symfony\Component\HttpFoundation\Response` workaround (and the docblock explaining it) is gone from all six
+  controllers and both middleware stubs. Purely an internal simplification for anything installed from this
+  release onward — an app that already ran `warden:install` is unaffected either way, since the package never
+  re-touches a published file.
+
 ## [1.2.1] - 2026-10-06
 
 ### Fixed
